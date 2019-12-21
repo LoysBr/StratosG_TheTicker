@@ -5,75 +5,132 @@ using UnityEngine;
 
 public class AdditionalTest : MonoBehaviour
 {
-    float m_timerUpdate;
-    int m_updateCount;
+    public bool m_checkUnityTime;
+    public bool m_checkUnityUnscaledTime;
+    public bool m_checkSystemTime;
+    public bool m_checkBlockingOperation;
+    public bool m_checkDelta;
 
-    DateTime m_startDateTime;
+    private int m_updateCount;
 
-    List<GameObject> m_instantiatedGOs;
+    private float m_unityElapsedTime;
+    private float m_unityUnscaledElapsedTime;
 
-    void Start()
+    private DateTime m_startDateTime;
+    private TimeSpan m_systemElapsedTime;
+    private TimeSpan m_systemDeltaTime;
+
+    private List<GameObject> m_instantiatedGOs;
+
+    private void Start()
     {
-        m_timerUpdate = 0f;
         m_updateCount = 0;
-        StartCoroutine("CoroutineTimer");
-        //StartCoroutine("CoroutineTimerWithLongOperation");
-        StartCoroutine("CoroutineTimer_Unscaled");     
+    }
+
+    private void Init()
+    {
+        m_unityElapsedTime = m_unityUnscaledElapsedTime = 0f;
 
         m_instantiatedGOs = new List<GameObject>();
 
         m_startDateTime = DateTime.Now;
-    }
+        m_systemDeltaTime = new TimeSpan();
+        m_systemElapsedTime = new TimeSpan();
 
-    
+        if (m_checkUnityTime)
+            StartCoroutine("CoroutineTimer", 1f);
+
+        if (m_checkUnityUnscaledTime)
+            StartCoroutine("CoroutineTimer_Unscaled", 1f);
+
+        //StartCoroutine("CoroutineTimerWithLongOperation");     
+    }
+        
     void Update()
     {
-        m_timerUpdate += Time.deltaTime;
-        Debug.Log("Timer Update = " + m_timerUpdate);
+        //there is some time between Start and first Update so I init timers here
+        if (m_updateCount == 0)
+        {
+            Init();
+        }
+        else //I add delta here to have a proper 0 elapsed time
+        {
+            m_unityElapsedTime += Time.deltaTime;
+            m_unityUnscaledElapsedTime += Time.unscaledDeltaTime;
 
-        TimeSpan sysDelta = DateTime.Now - m_startDateTime;
-        Debug.Log("System deltaTime = " + sysDelta);
+            TimeSpan newElapsedTime = DateTime.Now - m_startDateTime;
+            m_systemDeltaTime = newElapsedTime - m_systemElapsedTime;
+            m_systemElapsedTime = newElapsedTime;
+        }
+                
 
-        StartCoroutine("CoroutineWaitOneSec", m_updateCount.ToString());
+        if (m_checkSystemTime)
+        {    
+            if(m_checkDelta)
+                Debug.Log(m_updateCount + " deltaTime System  = " + m_systemDeltaTime);
 
+            Debug.Log(m_updateCount + " ElapsedTime System = " + m_systemElapsedTime);
+        }
+
+        if (m_checkUnityTime)
+        {
+            if(m_checkDelta)
+                Debug.Log(m_updateCount + " deltaTime Unity   = " + Time.deltaTime);
+            
+            //Debug.Log(m_updateCount + "My ElapsedTime Unity = " + m_unityElapsedTime);
+            Debug.Log(m_updateCount + "   ElapsedTime Unity = " + Time.time);
+        }
+        if (m_checkUnityUnscaledTime)
+        {
+            if(m_checkDelta)
+                Debug.Log(m_updateCount + " deltaTime unscaled Unity = " + Time.unscaledDeltaTime);
+
+            //Debug.Log(m_updateCount + "My ElapsedTime unscaled Unity = " + m_unityUnscaledElapsedTime);
+            Debug.Log(m_updateCount + "ElapsedTime unscaled Unity = " + Time.unscaledTime);
+        }
+
+
+        //StartCoroutine("CoroutineWaitOneSec", m_updateCount.ToString());
         m_updateCount++;
 
 
         // big sync operation
         // I put it at the end of Update voluntarily 
-        foreach (GameObject go in m_instantiatedGOs)
-            DestroyImmediate(go);
-
-        for (int i = 0; i < 100000; i++)
+        if (m_checkBlockingOperation)
         {
-            GameObject go = Instantiate(new GameObject());
-            m_instantiatedGOs.Add(go);
-        }
+            foreach (GameObject go in m_instantiatedGOs)
+                DestroyImmediate(go);
+
+            for (int i = 0; i < 40000; i++)
+            {
+                GameObject go = Instantiate(new GameObject());
+                m_instantiatedGOs.Add(go);
+            }
+        }        
     }
 
-    IEnumerator CoroutineTimer()
+    IEnumerator CoroutineTimer(float _tickDuration)
     {
         float timer = 0f;
-        float tickDuration = 1f;
-        while(true)
+        WaitForSeconds wait = new WaitForSeconds(_tickDuration);
+        while (true)
         {            
-            yield return new WaitForSeconds(tickDuration);
-            timer += tickDuration;
-            Debug.Log("Timer Coroutine = " + timer);
+            yield return wait;
+            timer += _tickDuration;
+            Debug.LogFormat("<b><color=#0000ffff>Timer Coroutine = " + timer + "</color></b>");
         }
     }
 
-    IEnumerator CoroutineTimerWithLongOperation()
+    IEnumerator CoroutineTimerWithLongOperation(float _tickDuration)
     {
         float timer = 0f;
-        float tickDuration = 1f;
         while (true)
         {
-            yield return new WaitForSeconds(tickDuration);
-            timer += tickDuration;
-            Debug.Log("Timer CoroutineTimerWithLongOperation = " + timer);
+            yield return new WaitForSeconds(_tickDuration);
+            timer += _tickDuration;
+            Debug.LogFormat("<b><color=#0000ffff>Timer CoroutineTimerWithLongOperation = " + timer + "</color></b>");
 
-            for (int i = 0; i < 10000; i++)
+            for (int i = 0; i < 100000; i++)
             {
                 GameObject go = Instantiate(new GameObject());
             }
@@ -87,15 +144,15 @@ public class AdditionalTest : MonoBehaviour
         Debug.Log("CoroutineWaitOneSec number " + n + " End");
     }
 
-    IEnumerator CoroutineTimer_Unscaled()
+    IEnumerator CoroutineTimer_Unscaled(float _tickDuration)
     {
         float timer = 0f;
-        float tickDuration = 1f;
         while (true)
         {
-            yield return new WaitForSecondsRealtime(tickDuration);
-            timer += tickDuration;
-            Debug.Log("Timer Coroutine_unscaled = " + timer);
+            yield return new WaitForSecondsRealtime(_tickDuration);
+            timer += _tickDuration;
+
+            Debug.LogFormat("<b><color=#ffff00ff>Timer Coroutine_unscaled = " + timer + "</color></b>");
         }
     }
 }
