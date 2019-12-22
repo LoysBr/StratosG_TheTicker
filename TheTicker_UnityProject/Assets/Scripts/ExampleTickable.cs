@@ -11,6 +11,7 @@ public class ExampleTickable : Tickable
         Debug.Log("New ExampleTickable created with tickDuration = " + _tickDuration);
     }
 
+    //Example Tick implementation
     override public void Tick()
     {
         base.Tick();

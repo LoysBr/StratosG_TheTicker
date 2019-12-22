@@ -18,6 +18,11 @@ public class Tickable
         m_tickDuration = _tickDuration;
     }    
 
+    public float GetTickDuration()
+    {
+        return m_tickDuration;
+    }
+
     public void Start()
     {
         m_ticksCount = 0;
