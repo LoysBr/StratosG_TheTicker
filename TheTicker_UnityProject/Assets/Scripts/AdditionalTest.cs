@@ -46,7 +46,7 @@ public class AdditionalTest : MonoBehaviour
         //StartCoroutine("CoroutineTimerWithLongOperation");     
     }
         
-    void Update()
+    public void Update()
     {
         //there is some time between Start and first Update so I init timers here
         if (m_updateCount == 0)
@@ -109,7 +109,7 @@ public class AdditionalTest : MonoBehaviour
         }        
     }
 
-    IEnumerator CoroutineTimer(float _tickDuration)
+    private IEnumerator CoroutineTimer(float _tickDuration)
     {
         float timer = 0f;
         WaitForSeconds wait = new WaitForSeconds(_tickDuration);
@@ -121,7 +121,7 @@ public class AdditionalTest : MonoBehaviour
         }
     }
 
-    IEnumerator CoroutineTimerWithLongOperation(float _tickDuration)
+    private IEnumerator CoroutineTimerWithLongOperation(float _tickDuration)
     {
         float timer = 0f;
         while (true)
@@ -137,14 +137,14 @@ public class AdditionalTest : MonoBehaviour
         }
     }
 
-    IEnumerator CoroutineWaitOneSec(string n)
+    private IEnumerator CoroutineWaitOneSec(string n)
     {
         Debug.Log("CoroutineWaitOneSec number " + n + " Start");
         yield return new WaitForSeconds(1f);
         Debug.Log("CoroutineWaitOneSec number " + n + " End");
     }
 
-    IEnumerator CoroutineTimer_Unscaled(float _tickDuration)
+    private IEnumerator CoroutineTimer_Unscaled(float _tickDuration)
     {
         float timer = 0f;
         while (true)

@@ -156,9 +156,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_checkUnityTime: 1
-  m_checkUnityUnscaledTime: 1
+  m_checkUnityUnscaledTime: 0
   m_checkSystemTime: 1
-  m_checkBlockingOperation: 1
+  m_checkBlockingOperation: 0
+  m_checkDelta: 0
 --- !u!1 &534669902
 GameObject:
   m_ObjectHideFlags: 0
