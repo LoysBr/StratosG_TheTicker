@@ -1,3 +1,7 @@
+TIME SPENT : 6.5 Hours 
+=> I was curious so I did also other tests ^^
+
+
 I implemented two different Ticker classes. To switch, in the Ticker scene, on the "GameManager" game object, 
 simply select the Ticker instance than you want (both are already in the scene).
 
